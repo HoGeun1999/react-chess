@@ -12,4 +12,8 @@
   &.black{
     background-color: rgb(143, 137, 137);
   }
+
+  &.selected{
+    background-color: lightblue;
+  }
 }

@@ -3,7 +3,7 @@ import React from 'react';
 import BoardBlock from './BoardBlock';
 import { useChessBoardDataStore } from '../stores/chessBoardDataStore';
 
-const ChessBoard: React.FC = () => {
+const ChessBoard:React.FC = () => {
   const { boardData } = useChessBoardDataStore();
 
   return (
