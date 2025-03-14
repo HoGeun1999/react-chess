@@ -1,0 +1,15 @@
+.board-block{
+  width: 90px;
+  height: 90px;
+
+
+  caret-color: transparent; 
+  
+  &.white{
+    background-color: rgb(252, 252, 239);
+  }
+
+  &.black{
+    background-color: rgb(143, 137, 137);
+  }
+}

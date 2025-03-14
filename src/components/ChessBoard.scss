@@ -1,0 +1,13 @@
+.chess-board{
+  display: flex;
+  flex-direction: column;
+  width: 720px;
+  height: 720px;
+  border: 2px solid black;
+  border-radius: 5px;
+}
+
+.board-row{
+  display: flex;
+}
+

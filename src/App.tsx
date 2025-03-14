@@ -1,13 +1,12 @@
-import './App.css'
+import './App.scss'
+import ChessBoard from './components/ChessBoard'
 
 function App() {
 
   return (
-    <>
-      <div>
-        
-      </div>
-    </>
+    <div className='app-grid-container'>  
+      <ChessBoard />
+    </div>
   )
 }
 
