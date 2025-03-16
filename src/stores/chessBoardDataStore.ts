@@ -3,7 +3,7 @@ import { create } from "zustand";
 interface chessBoardDataStore {
   boardData: string[][];
   resetBoardData: () => void;
-  setBoardData: (fromRow: number, fromCol: number, toRow: number, toCol: number) => void; // 수정
+  movePieceToBoardData: (fromRow: number, fromCol: number, toRow: number, toCol: number) => void; // 수정
 }
 
 const startingBoardData = [
@@ -20,7 +20,7 @@ const startingBoardData = [
 export const useChessBoardDataStore = create<chessBoardDataStore>((set) => ({
   boardData: startingBoardData,
   resetBoardData: () => set({ boardData: startingBoardData }),
-  setBoardData: (fromRow, fromCol, toRow, toCol) =>
+  movePieceToBoardData: (fromRow, fromCol, toRow, toCol) =>
     set((state) => {
       const newBoardData = [...state.boardData]; 
       newBoardData[toRow][toCol] = newBoardData[fromRow][fromCol];
