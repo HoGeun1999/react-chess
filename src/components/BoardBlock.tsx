@@ -2,7 +2,6 @@ import './BoardBlock.scss'
 import React from "react"
 import ChessPiece from './ChessPiece';
 import { useTurnCountStore } from '../stores/turnCountStore'
-import { useChessBoardDataStore } from '../stores/chessBoardDataStore';
 import { useSelectedBoardBlockStore } from '../stores/selectedBoardBlockStore';
 import { useChessBoardDataHistoryStore } from '../stores/chessBoardDataHistoryStore';
 interface BoardBlockProps {
@@ -13,11 +12,12 @@ interface BoardBlockProps {
 
 const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) => {
   const { turnCount, increaseTurnCount } = useTurnCountStore()
-  const { boardData , movePieceToBoardData} = useChessBoardDataStore();
   const { selectedBoardBlock, setSelectedBoardBlock } = useSelectedBoardBlockStore();
-  const { addBoardDataHistory } = useChessBoardDataHistoryStore.getState();
+  const { boardDataHistory, addBoardDataHistory } = useChessBoardDataHistoryStore.getState();
   const isSelected = selectedBoardBlock && selectedBoardBlock.row === row && selectedBoardBlock.col === col;
+  const boardData = boardDataHistory[turnCount]
   // console.log(row)
+  // console.log(boardDataHistory)
   const boardBlockColor = ():string => { 
     if (row % 2 === 0) {
       return col % 2 === 0 ? 'white' : 'black';
@@ -28,10 +28,10 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
 
   const clickBoardBlock = () => {
     if(!selectedBoardBlock){
-      if(turnCount%2 === 1 && boardData[row][col].includes('w')){ 
+      if(turnCount%2 === 0 && boardData[row][col].includes('w')){ 
         setSelectedBoardBlock({row,col,piece})
       }    
-      else if(turnCount%2 === 0 && boardData[row][col].includes('b')){
+      else if(turnCount%2 === 1 && boardData[row][col].includes('b')){
         setSelectedBoardBlock({row,col,piece})
       }
     }    
@@ -55,12 +55,14 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
     const { row: fromRow, col: fromCol } = selectedBoardBlock!;
     const toRow = row;
     const toCol = col;
-    movePieceToBoardData(fromRow, fromCol, toRow, toCol); 
-    addBoardDataHistory(turnCount, boardData)
+    const newBoardData = structuredClone(boardData)
+    newBoardData[toRow][toCol] = newBoardData[fromRow][fromCol];
+    newBoardData[fromRow][fromCol] = '';
+    addBoardDataHistory(turnCount, newBoardData)
     increaseTurnCount();
     setSelectedBoardBlock(null!);
   };
-
+  
   const checkCanMovePawn = () => {
         
     return true
@@ -70,6 +72,8 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
 
     return true
   }
+
+
 
   return (
     <div 

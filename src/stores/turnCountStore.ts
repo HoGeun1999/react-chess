@@ -7,7 +7,7 @@ interface TurnCountStore {
   resetTurnCount: () => void;
 }
 
-const initialTurnCountState = { turnCount: 1 };
+const initialTurnCountState = { turnCount: 0 };
 
 export const useTurnCountStore = create<TurnCountStore>((set) => ({
   ...initialTurnCountState,

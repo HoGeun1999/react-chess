@@ -1,14 +1,16 @@
 import './ChessBoard.scss';
 import React from 'react';
 import BoardBlock from './BoardBlock';
-import { useChessBoardDataStore } from '../stores/chessBoardDataStore';
+import { useChessBoardDataHistoryStore } from '../stores/chessBoardDataHistoryStore';
+import { useTurnCountStore } from '../stores/turnCountStore';
 
 const ChessBoard:React.FC = () => {
-  const { boardData } = useChessBoardDataStore();
+  const { boardDataHistory } = useChessBoardDataHistoryStore.getState();
+  const { turnCount } = useTurnCountStore();
 
   return (
     <div className="chess-board">
-      {boardData.map((row, rowIndex) => (
+      {boardDataHistory[turnCount].map((row, rowIndex) => (
         <div key={rowIndex} className="board-row">
           {row.map((piece, colIndex) => (
             <BoardBlock

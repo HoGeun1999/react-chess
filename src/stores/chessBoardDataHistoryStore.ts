@@ -1,13 +1,13 @@
 import { create } from "zustand";
 
 interface chessBoardDataHistoryStore {
-  boardDataHistory: Record<number, string[][]>
+  boardDataHistory: string[][][]
   resetBoardDataHistory: () => void
   addBoardDataHistory: (turnCount:number, boardData:string[][]) => void
 }
 
-const startingBoardDataHistory = {
-  0 : [
+const startingBoardDataHistory = [
+  [
     ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
     ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
     ['', '', '', '', '', '', '', ''],
@@ -17,17 +17,19 @@ const startingBoardDataHistory = {
     ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
     ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
   ]
-}
+]
 
 export const useChessBoardDataHistoryStore = create<chessBoardDataHistoryStore>((set) => ({
   boardDataHistory: startingBoardDataHistory,
   resetBoardDataHistory: () => set({ boardDataHistory: startingBoardDataHistory }),
 
   addBoardDataHistory: (turnCount:number, boardData:string[][]) =>
-    set((state) => ({
-      boardDataHistory: {
-        ...state.boardDataHistory,
-        [turnCount]: structuredClone(boardData),
-      },
-    })),
+    set((state) => {
+      return {
+          boardDataHistory: [
+            ...state.boardDataHistory.slice(0, turnCount + 1),
+            structuredClone(boardData),
+          ],
+        };
+    }),
 }))
