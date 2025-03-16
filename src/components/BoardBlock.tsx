@@ -13,7 +13,7 @@ interface BoardBlockProps {
 const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) => {
   const { turnCount, increaseTurnCount } = useTurnCountStore()
   const { selectedBoardBlock, setSelectedBoardBlock } = useSelectedBoardBlockStore();
-  const { boardDataHistory, addBoardDataHistory } = useChessBoardDataHistoryStore.getState();
+  const { boardDataHistory, addBoardDataHistory } = useChessBoardDataHistoryStore();
   const isSelected = selectedBoardBlock && selectedBoardBlock.row === row && selectedBoardBlock.col === col;
   const boardData = boardDataHistory[turnCount]
   // console.log(row)
@@ -36,14 +36,16 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
       }
     }    
     else{
-      if(boardData[row][col] === '' || piece[0] !== selectedBoardBlock.piece[0]){
-        if(piece[1] === 'p'){
+      if(boardData[row][col] == '' || piece[0] !== selectedBoardBlock.piece[0]){
+        if(selectedBoardBlock.piece[1] === 'p'){
           if(checkCanMovePawn() && isKingCheck()){
-
+            updateMoveToBoardData()
           }
         }
-        updateMoveToBoardData()
-          increaseTurnCount
+        else{
+          updateMoveToBoardData()
+        }
+        
       }
       else{
         setSelectedBoardBlock({row,col,piece})
@@ -63,17 +65,40 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
     setSelectedBoardBlock(null!);
   };
   
-  const checkCanMovePawn = () => {
-        
-    return true
+  const checkCanMovePawn = ():boolean => {
+    if(!selectedBoardBlock) return false
+    const iswhitePawn = selectedBoardBlock.piece[0] === 'w';
+    const direction = iswhitePawn ? -1 : 1;
+    const startingRow = iswhitePawn ? 6 : 1;
+    const frontRow = selectedBoardBlock.row + direction;
+    if (row === frontRow && col === selectedBoardBlock.col) {
+      if (boardData[frontRow][col] === "") {
+        return true;
+      }
+    }
+
+    if (selectedBoardBlock.row === startingRow && row === frontRow + direction && col === selectedBoardBlock.col) {
+      if (boardData[frontRow][col] === "" && boardData[frontRow + direction][col] === "") {
+        return true;
+      }
+    }
+
+    if (row === frontRow && (col === selectedBoardBlock.col + 1 || col === selectedBoardBlock.col - 1)) {
+      const targetPiece = boardData[row][col];
+      if (targetPiece && targetPiece[0] !== selectedBoardBlock.piece[0]) {
+        return true;
+      }
+    }
+
+    // 앙파상 체크
+
+    return false
   }
 
-  const isKingCheck = () => {
+  const isKingCheck = ():boolean => {
 
     return true
   }
-
-
 
   return (
     <div 
