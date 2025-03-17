@@ -4,6 +4,7 @@ import ChessPiece from './ChessPiece';
 import { useTurnCountStore } from '../stores/turnCountStore'
 import { useSelectedBoardBlockStore } from '../stores/selectedBoardBlockStore';
 import { useChessBoardDataHistoryStore } from '../stores/chessBoardDataHistoryStore';
+import { useEffect, useState } from 'react';
 interface BoardBlockProps {
   row: number; 
   col: number;  
@@ -17,7 +18,7 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
   const isSelected = selectedBoardBlock && selectedBoardBlock.row === row && selectedBoardBlock.col === col;
   const boardData = boardDataHistory[turnCount]
   // console.log(row)
-  // console.log(boardDataHistory)
+  // console.log(boardDataHistory)  
   const boardBlockColor = ():string => { 
     if (row % 2 === 0) {
       return col % 2 === 0 ? 'white' : 'black';
@@ -38,12 +39,15 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
     else{
       if(boardData[row][col] == '' || piece[0] !== selectedBoardBlock.piece[0]){
         if(selectedBoardBlock.piece[1] === 'p'){
-          if(checkCanMovePawn() && isKingCheck()){
+          if(checkCanMovePawn() && !isKingCheck()){
             updateMoveToBoardData()
           }
         }
         else{
-          updateMoveToBoardData()
+          if(!isKingCheck()){
+            updateMoveToBoardData()
+          }
+          
         }
         
       }
@@ -54,15 +58,110 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
   }
 
   const updateMoveToBoardData = ():void => {
+    const newBoardData = makeNewBoardData()
+    addBoardDataHistory(turnCount, newBoardData)
+    increaseTurnCount();
+    setSelectedBoardBlock(null!);
+  };
+
+  const makeNewBoardData = ():string[][] => {
     const { row: fromRow, col: fromCol } = selectedBoardBlock!;
     const toRow = row;
     const toCol = col;
     const newBoardData = structuredClone(boardData)
     newBoardData[toRow][toCol] = newBoardData[fromRow][fromCol];
     newBoardData[fromRow][fromCol] = '';
-    addBoardDataHistory(turnCount, newBoardData)
-    increaseTurnCount();
-    setSelectedBoardBlock(null!);
+    return newBoardData
+  }
+  
+  const isCheckMate = ():boolean => {
+    const newBoardData = makeNewBoardData();
+    return false
+  }
+
+  const isKingCheck = (): boolean => {
+    const newBoardData = makeNewBoardData();
+    const currentPlayer = selectedBoardBlock!.piece[0]; // 'w' or 'b'
+    const opponentPlayer = currentPlayer === 'w' ? 'b' : 'w';
+  
+    let kingPosition = { row: -1, col: -1 };
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (newBoardData[i][j] === `${currentPlayer}k`) {
+          kingPosition = { row: i, col: j };
+          break;
+        }
+      }
+    }  
+
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        const piece = newBoardData[i][j];
+        if (piece && piece[0] === opponentPlayer) {
+          if (canPieceAttack(piece[1], { row: i, col: j }, kingPosition, newBoardData)) {
+            return true;
+          }
+        }
+      }
+    }
+  
+    return false;
+  };
+
+  const canPieceAttack = (
+    pieceType: string,
+    from: { row: number; col: number },
+    to: { row: number; col: number },
+    board: string[][]
+  ): boolean => {
+    const dx = to.col - from.col;
+    const dy = to.row - from.row;
+  
+    switch (pieceType) {
+      case 'p': {
+        const direction = board[from.row][from.col][0] === 'w' ? -1 : 1;
+        return dy === direction && Math.abs(dx) === 1;
+      }
+      case 'n': {
+        return (Math.abs(dx) === 2 && Math.abs(dy) === 1) || (Math.abs(dx) === 1 && Math.abs(dy) === 2);
+      }
+      case 'b': {
+        return isClearPath(from, to, board) && Math.abs(dx) === Math.abs(dy);
+      }
+      case 'r': {
+        return isClearPath(from, to, board) && (dx === 0 || dy === 0);
+      }
+      case 'q': {
+        return isClearPath(from, to, board) && (Math.abs(dx) === Math.abs(dy) || dx === 0 || dy === 0);
+      }
+      case 'k': {
+        return Math.abs(dx) <= 1 && Math.abs(dy) <= 1;
+      }
+      default:
+        return false;
+    }
+  };
+
+  const isClearPath = (
+    from: { row: number; col: number },
+    to: { row: number; col: number },
+    board: string[][]
+  ): boolean => {
+    const dx = Math.sign(to.col - from.col);
+    const dy = Math.sign(to.row - from.row);
+  
+    let x = from.col + dx;
+    let y = from.row + dy;
+  
+    while (x !== to.col || y !== to.row) {
+      if (board[y][x] !== '') {
+        return false;
+      }
+      x += dx;
+      y += dy;
+    }
+  
+    return true;
   };
   
   const checkCanMovePawn = ():boolean => {
@@ -90,15 +189,12 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
       }
     }
 
-    // 앙파상 체크
+    // 앙파상 체크  
 
     return false
   }
 
-  const isKingCheck = ():boolean => {
 
-    return true
-  }
 
   return (
     <div 
