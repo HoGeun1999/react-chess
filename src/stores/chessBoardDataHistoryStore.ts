@@ -16,7 +16,18 @@ const startingBoardDataHistory = [
     ['', '', '', '', '', '', '', ''],
     ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
     ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
-  ]
+  ],
+  // test용 배열
+  // [
+  //   ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
+  //   ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+  //   ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
+  // ]
 ]
 
 export const useChessBoardDataHistoryStore = create<chessBoardDataHistoryStore>((set) => ({
