@@ -31,41 +31,54 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
   }
 
   const clickBoardBlock = () => {
-    if(!selectedBoardBlock){
-      if(turnCount%2 === 0 && boardData[row][col][0] ==='w'){ 
-        setSelectedBoardBlock({row,col,piece})
-      }    
-      else if(turnCount%2 === 1 && boardData[row][col][0] === 'b'){
-        setSelectedBoardBlock({row,col,piece})
+    if (!selectedBoardBlock) {
+      if (turnCount % 2 === 0 && boardData[row][col][0] === 'w') {
+        setSelectedBoardBlock({ row, col, piece });
+      } else if (turnCount % 2 === 1 && boardData[row][col][0] === 'b') {
+        setSelectedBoardBlock({ row, col, piece });
       }
-    }    
-    else{
-      if(boardData[row][col] == '' || piece[0] !== selectedBoardBlock.piece[0]){
+    } else {
+      if (boardData[row][col] === '' || piece[0] !== selectedBoardBlock.piece[0]) {
         const newBoardData = makeNewBoardData();
-        const isKingCheck = isKingCheckPieceLocation(newBoardData)
-        if(selectedBoardBlock.piece[1] === 'p'){
-          if(checkCanMovePawn() && !isKingCheck){
-            updateMoveToBoardData()
-          } 
-          else if(isKingCheck){
-            alert('체크')
-          }
+        const isKingCheck = isKingCheckPieceLocation(newBoardData);
+        const pieceType = selectedBoardBlock.piece[1];
+
+        let canMove = false;
+
+        switch (pieceType) {
+          case 'p':
+            canMove = checkCanMovePawn();
+            break;
+          case 'r':
+            canMove = checkCanMoveRook();
+            break;
+          case 'n':
+            canMove = checkCanMoveKnight();
+            break;
+          case 'b':
+            canMove = checkCanMoveBishop();
+            break;
+          case 'q':
+            canMove = checkCanMoveQueen();
+            break;
+          case 'k':
+            canMove = checkCanMoveKing();
+            break;
+          default:
+            break;
         }
-        else{
-          if(!isKingCheck){
-            updateMoveToBoardData()
-          }
-          else{
-            alert('체크')
-          }
+
+        if (canMove && !isKingCheck) {
+          updateMoveToBoardData();
+        } else if(isKingCheck){
+          alert('체크');
         }
-        
-      }
-      else{
-        setSelectedBoardBlock({row,col,piece})
+      } else {
+        setSelectedBoardBlock({ row, col, piece });
       }
     }
-  }
+  };
+
 
   const updateMoveToBoardData = ():void => {
     const newBoardData = makeNewBoardData()
@@ -84,38 +97,101 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
     return newBoardData
   }
   
-  const checkCanMovePawn = ():boolean => {
-    if(!selectedBoardBlock) return false
-    const iswhitePawn = selectedBoardBlock.piece[0] === 'w';
-    const direction = iswhitePawn ? -1 : 1;
-    const startingRow = iswhitePawn ? 6 : 1;
+  const checkCanMovePawn = (): boolean => {
+    if (!selectedBoardBlock) return false;
+    const isWhitePawn = selectedBoardBlock.piece[0] === 'w';
+    const direction = isWhitePawn ? -1 : 1;
+    const startingRow = isWhitePawn ? 6 : 1;
     const frontRow = selectedBoardBlock.row + direction;
+  
     if (row === frontRow && col === selectedBoardBlock.col) {
-      if (boardData[frontRow][col] === "") {
-        return true;
-      }
+      if (boardData[frontRow][col] === "") return true;
     }
-
+  
     if (selectedBoardBlock.row === startingRow && row === frontRow + direction && col === selectedBoardBlock.col) {
-      if (boardData[frontRow][col] === "" && boardData[frontRow + direction][col] === "") {
-        return true;
-      }
+      if (boardData[frontRow][col] === "" && boardData[frontRow + direction][col] === "") return true;
     }
-
+  
     if (row === frontRow && (col === selectedBoardBlock.col + 1 || col === selectedBoardBlock.col - 1)) {
       const targetPiece = boardData[row][col];
-      if (targetPiece && targetPiece[0] !== selectedBoardBlock.piece[0]) {
-        return true;
-      }
+      if (targetPiece && targetPiece[0] !== selectedBoardBlock.piece[0]) return true;
     }
-
-    // 앙파상 체크  
-
-    return false
-  }
-
-
-
+  
+    // 앙파상 체크 (추후 구현)
+  
+    return false;
+  };
+  
+  const checkCanMoveRook = (): boolean => {
+    if (!selectedBoardBlock) return false;
+  
+    if (selectedBoardBlock.row !== row && selectedBoardBlock.col !== col) return false;
+  
+    const rowDirection = row === selectedBoardBlock.row ? 0 : Math.sign(row - selectedBoardBlock.row);
+    const colDirection = col === selectedBoardBlock.col ? 0 : Math.sign(col - selectedBoardBlock.col);
+  
+    let r = selectedBoardBlock.row + rowDirection;
+    let c = selectedBoardBlock.col + colDirection;
+  
+    while (r !== row || c !== col) {
+      if (boardData[r][c] !== "") return false;
+      r += rowDirection;
+      c += colDirection;
+    }
+  
+    return boardData[row][col] === "" || boardData[row][col][0] !== selectedBoardBlock.piece[0];
+  };
+  
+  const checkCanMoveKnight = (): boolean => {
+    if (!selectedBoardBlock) return false;
+  
+    const dx = Math.abs(selectedBoardBlock.col - col);
+    const dy = Math.abs(selectedBoardBlock.row - row);
+  
+    if ((dx === 2 && dy === 1) || (dx === 1 && dy === 2)) {
+      return boardData[row][col] === "" || boardData[row][col][0] !== selectedBoardBlock.piece[0];
+    }
+  
+    return false;
+  };
+  
+  const checkCanMoveBishop = (): boolean => {
+    if (!selectedBoardBlock) return false;
+  
+    if (Math.abs(selectedBoardBlock.row - row) !== Math.abs(selectedBoardBlock.col - col)) return false;
+  
+    const rowDirection = Math.sign(row - selectedBoardBlock.row);
+    const colDirection = Math.sign(col - selectedBoardBlock.col);
+  
+    let r = selectedBoardBlock.row + rowDirection;
+    let c = selectedBoardBlock.col + colDirection;
+  
+    while (r !== row || c !== col) {
+      if (boardData[r][c] !== "") return false;
+      r += rowDirection;
+      c += colDirection;
+    }
+  
+    return boardData[row][col] === "" || boardData[row][col][0] !== selectedBoardBlock.piece[0];
+  };
+  
+  const checkCanMoveQueen = (): boolean => {
+    return checkCanMoveRook() || checkCanMoveBishop();
+  };
+  
+  const checkCanMoveKing = (): boolean => {
+    if (!selectedBoardBlock) return false;
+  
+    const dx = Math.abs(selectedBoardBlock.col - col);
+    const dy = Math.abs(selectedBoardBlock.row - row);
+  
+    if (dx <= 1 && dy <= 1) {
+      return boardData[row][col] === "" || boardData[row][col][0] !== selectedBoardBlock.piece[0];
+    }
+  
+    return false;
+  };
+  
   return (
     <div 
       className={`board-block ${boardBlockColor()} ${isSelected ? 'selected' : ''}`}
