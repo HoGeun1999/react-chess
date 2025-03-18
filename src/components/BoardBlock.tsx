@@ -5,7 +5,7 @@ import { useTurnCountStore } from '../stores/turnCountStore'
 import { useSelectedBoardBlockStore } from '../stores/selectedBoardBlockStore';
 import { useChessBoardDataHistoryStore } from '../stores/chessBoardDataHistoryStore';
 import { isKingCheckPieceLocation } from '../function/isKingCheckPieceLocation';
-
+import { useCheckPawnLastMoveStore } from '../stores/checkPawnLastMoveStore';
 interface BoardBlockProps {
   row: number; 
   col: number;  
@@ -16,13 +16,14 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
   const { turnCount, increaseTurnCount } = useTurnCountStore()
   const { selectedBoardBlock, setSelectedBoardBlock } = useSelectedBoardBlockStore();
   const { boardDataHistory, addBoardDataHistory } = useChessBoardDataHistoryStore();
+  const { prevTurnDoubleForwardMovePawnLocation, setprevTurnDoubleForwardMovePawnLocation } = useCheckPawnLastMoveStore();
   const isSelected = selectedBoardBlock && selectedBoardBlock.row === row && selectedBoardBlock.col === col;
   const boardData = boardDataHistory[turnCount]
-
+  let isEnPassant = false
   // console.log(row)
-  // console.log(boardDataHistory)  
+  // console.log(boardDataHistory)
+  
   const boardBlockColor = ():string => {
-
     if (row % 2 === 0) {
       return col % 2 === 0 ? 'white' : 'black';
     } else {
@@ -69,6 +70,9 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
         }
 
         if (canMove && !isKingCheck) {
+          if(pieceType !== 'p'){
+            setprevTurnDoubleForwardMovePawnLocation(null)
+          }
           updateMoveToBoardData();
         } else if(isKingCheck){
           alert('체크');
@@ -94,6 +98,11 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
     const newBoardData = structuredClone(boardData)
     newBoardData[toRow][toCol] = newBoardData[fromRow][fromCol];
     newBoardData[fromRow][fromCol] = '';
+
+    if(isEnPassant&&prevTurnDoubleForwardMovePawnLocation){
+      newBoardData[prevTurnDoubleForwardMovePawnLocation.row][prevTurnDoubleForwardMovePawnLocation.col] = "";
+    }
+
     return newBoardData
   }
   
@@ -103,22 +112,45 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
     const direction = isWhitePawn ? -1 : 1;
     const startingRow = isWhitePawn ? 6 : 1;
     const frontRow = selectedBoardBlock.row + direction;
-  
+
     if (row === frontRow && col === selectedBoardBlock.col) {
-      if (boardData[frontRow][col] === "") return true;
+      if (boardData[frontRow][col] === "") {
+        setprevTurnDoubleForwardMovePawnLocation(null)
+        return true;
+      }
     }
   
     if (selectedBoardBlock.row === startingRow && row === frontRow + direction && col === selectedBoardBlock.col) {
-      if (boardData[frontRow][col] === "" && boardData[frontRow + direction][col] === "") return true;
+      if (boardData[frontRow][col] === "" && boardData[frontRow + direction][col] === ""){
+        setprevTurnDoubleForwardMovePawnLocation({row,col})
+        return true;
+      } 
     }
   
     if (row === frontRow && (col === selectedBoardBlock.col + 1 || col === selectedBoardBlock.col - 1)) {
       const targetPiece = boardData[row][col];
-      if (targetPiece && targetPiece[0] !== selectedBoardBlock.piece[0]) return true;
+      if (targetPiece && targetPiece[0] !== selectedBoardBlock.piece[0]) {
+        setprevTurnDoubleForwardMovePawnLocation(null)
+        return true;
+      }
     }
-  
-    // 앙파상 체크 (추후 구현)
-  
+
+    if (prevTurnDoubleForwardMovePawnLocation) {
+      if (selectedBoardBlock.row === prevTurnDoubleForwardMovePawnLocation.row && Math.abs(selectedBoardBlock.col - prevTurnDoubleForwardMovePawnLocation.col) === 1) {
+        if (isWhitePawn) {
+          if (row === prevTurnDoubleForwardMovePawnLocation.row - 1 && col === prevTurnDoubleForwardMovePawnLocation.col) {
+            isEnPassant = true
+            return true;
+          }
+        } else {
+          if (row === prevTurnDoubleForwardMovePawnLocation.row + 1 && col === prevTurnDoubleForwardMovePawnLocation.col) {
+            isEnPassant = true
+            return true;
+          }
+        }
+      }
+    }
+    
     return false;
   };
   
