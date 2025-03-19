@@ -6,6 +6,8 @@ import { useSelectedBoardBlockStore } from '../stores/selectedBoardBlockStore';
 import { useChessBoardDataHistoryStore } from '../stores/chessBoardDataHistoryStore';
 import { isKingCheckPieceLocation } from '../function/isKingCheckPieceLocation';
 import { useCheckPawnLastMoveStore } from '../stores/checkPawnLastMoveStore';
+import { useCastlingCheckStore } from '../stores/castlingCheckStore';
+
 interface BoardBlockProps {
   row: number; 
   col: number;  
@@ -17,9 +19,11 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
   const { selectedBoardBlock, setSelectedBoardBlock } = useSelectedBoardBlockStore();
   const { boardDataHistory, addBoardDataHistory } = useChessBoardDataHistoryStore();
   const { prevTurnDoubleForwardMovePawnLocation, setprevTurnDoubleForwardMovePawnLocation } = useCheckPawnLastMoveStore();
+  const { leftWhiteRook, rightWhiteRook, leftBlackRook, rightBlackRook, whiteKing, blackKing, setLeftWhiteRook, setRightWhiteRook, setLeftBlackRook, setRightBlackRook, setWhiteKing, setBlackKing } = useCastlingCheckStore();
   const isSelected = selectedBoardBlock && selectedBoardBlock.row === row && selectedBoardBlock.col === col;
   const boardData = boardDataHistory[turnCount]
   let isEnPassant = false
+  let isCastling = false
   // console.log(row)
   // console.log(boardDataHistory)
   
@@ -86,6 +90,40 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
 
   const updateMoveToBoardData = ():void => {
     const newBoardData = makeNewBoardData()
+    if(selectedBoardBlock?.piece === 'wk'){
+      setWhiteKing(turnCount)
+    } else if(selectedBoardBlock?.piece === 'bk'){
+      setBlackKing(turnCount)
+    } else if(selectedBoardBlock?.piece === 'wr' && col === 0){
+      setLeftWhiteRook(turnCount)
+    } else if(selectedBoardBlock?.piece === 'wr' && col === 7){
+      setRightWhiteRook(turnCount)
+    } else if(selectedBoardBlock?.piece === 'br' && col === 0){
+      setLeftBlackRook(turnCount)
+    } else if(selectedBoardBlock?.piece === 'br' && col === 7){
+      setRightBlackRook(turnCount)
+    }
+    
+    if(whiteKing && whiteKing>=turnCount){
+      setWhiteKing(null!)
+    }
+    if(blackKing && blackKing>=turnCount){
+      setBlackKing(null!)
+    }
+    if(leftWhiteRook && leftWhiteRook>=turnCount){
+      setLeftWhiteRook(null!)
+    }
+    if(rightWhiteRook && rightWhiteRook>=turnCount){
+      setRightWhiteRook(null!)
+    }
+    if(leftBlackRook && leftBlackRook>=turnCount){
+      setLeftBlackRook(null!)
+    }
+    if(rightBlackRook && rightBlackRook>=turnCount){
+      setRightBlackRook(null!)
+    }
+
+    console.log(whiteKing,blackKing,leftWhiteRook,rightWhiteRook,leftBlackRook,rightBlackRook)
     addBoardDataHistory(turnCount, newBoardData)
     increaseTurnCount();
     setSelectedBoardBlock(null!);
@@ -101,6 +139,22 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
 
     if(isEnPassant&&prevTurnDoubleForwardMovePawnLocation){
       newBoardData[prevTurnDoubleForwardMovePawnLocation.row][prevTurnDoubleForwardMovePawnLocation.col] = "";
+    }
+
+    if(isCastling){
+      if(row === 7 && col === 2){
+        newBoardData[row][3] = newBoardData[row][0]
+        newBoardData[row][0] = ''
+      } else if(row === 7 && col === 6){
+        newBoardData[row][5] = newBoardData[row][7]
+        newBoardData[row][7] = ''
+      } else if(row === 0 && col === 2){
+        newBoardData[row][3] = newBoardData[row][0]
+        newBoardData[row][0] = ''
+      } else if(row === 0 && col === 6){
+        newBoardData[row][5] = newBoardData[row][7]
+        newBoardData[row][7] = ''
+      }
     }
 
     return newBoardData
@@ -221,9 +275,84 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
       return boardData[row][col] === "" || boardData[row][col][0] !== selectedBoardBlock.piece[0];
     }
   
+    // 캐슬링 검사
+    if (selectedBoardBlock.piece === "wk" || selectedBoardBlock.piece === "bk") {
+      if (selectedBoardBlock.piece === "wk") { // 백 킹
+        if (row === 7 && col === 2) { // 킹이 2열로 이동하는 경우 (퀸 사이드 캐슬링)
+          const rook = boardData[7][0]; // 좌측 룩
+          if (rook === "wr" && !hasPieceBetween(7, 0, 7, 3) && !isKingRouteCheck(7, 4) && !isKingRouteCheck(7, 3)) {
+            if (whiteKing && whiteKing < turnCount) return false;
+            if (leftWhiteRook && leftWhiteRook < turnCount) return false;
+            isCastling = true
+            return true;
+          }
+        }
+        if (row === 7 && col === 6) { // 킹이 6열로 이동하는 경우 (킹 사이드 캐슬링)
+          const rook = boardData[7][7]; // 우측 룩
+          if (rook === "wr" && !hasPieceBetween(7, 7, 7, 5) && !isKingRouteCheck(7, 4) && !isKingRouteCheck(7, 5)) {
+            if (whiteKing && whiteKing < turnCount) return false;
+            if (rightWhiteRook && rightWhiteRook < turnCount) return false;
+            isCastling = true
+            return true;
+          }
+        }
+      } else if (selectedBoardBlock.piece === "bk") { // 흑 킹
+        if (row === 0 && col === 2) { // 킹이 2열로 이동하는 경우 (퀸 사이드 캐슬링)
+          const rook = boardData[0][0]; // 좌측 룩
+          if (rook === "br" && !hasPieceBetween(0, 0, 0, 3) && !isKingRouteCheck(0, 4) && !isKingRouteCheck(0, 3)) {
+            if (blackKing && blackKing < turnCount) return false;
+            if (leftBlackRook && leftBlackRook < turnCount) return false;
+            isCastling = true
+            return true;
+          }
+        }
+        if (row === 0 && col === 6) { // 킹이 6열로 이동하는 경우 (킹 사이드 캐슬링)
+          const rook = boardData[0][7]; // 우측 룩
+          if (rook === "br" && !hasPieceBetween(0, 7, 0, 5) && !isKingRouteCheck(0, 4) && !isKingRouteCheck(0, 5)) {
+            if (blackKing && blackKing < turnCount) return false;
+            if (rightBlackRook && rightBlackRook < turnCount) return false;
+            isCastling = true
+            return true;
+          }
+        }
+      }
+    }
+    
     return false;
   };
   
+  // 경로에 다른 기물이 있는지 확인하는 함수
+  const hasPieceBetween = (startRow: number, startCol: number, endRow: number, endCol: number): boolean => {
+    const directionRow = startRow === endRow ? 0 : startRow < endRow ? 1 : -1;
+    const directionCol = startCol === endCol ? 0 : startCol < endCol ? 1 : -1;
+  
+    let row = startRow + directionRow;
+    let col = startCol + directionCol;
+  
+    while (row !== endRow || col !== endCol) {
+      if (boardData[row][col] !== "") {
+        return true; // 기물이 있음
+      }
+      row += directionRow;
+      col += directionCol;
+    }
+  
+    return boardData[endRow][endCol] !== ""; // 마지막칸검사
+  };
+  
+  const isKingRouteCheck = (row: number, col: number): boolean => {
+    const newBoardData = structuredClone(boardData)
+    newBoardData[selectedBoardBlock!.row][selectedBoardBlock!.col] = ''
+    newBoardData[row][col] = selectedBoardBlock!.piece
+    
+
+    const isKingCheck = isKingCheckPieceLocation(newBoardData);
+    if (isKingCheck) {
+      return true;
+    }
+    return false
+  }
+
   return (
     <div 
       className={`board-block ${boardBlockColor()} ${isSelected ? 'selected' : ''}`}

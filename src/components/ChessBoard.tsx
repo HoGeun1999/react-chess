@@ -12,7 +12,6 @@ const ChessBoard: React.FC = () => {
 
   useEffect(() => {
     const currentBoard = boardDataHistory[turnCount];
-    console.log('check')
     const attackingPieceLocation = isKingCheckPieceLocation(currentBoard)
     if (attackingPieceLocation) {
       const isCheckmate = checkCheckmate(
