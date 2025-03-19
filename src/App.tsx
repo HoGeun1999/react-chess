@@ -2,6 +2,7 @@ import './App.scss'
 import ChessBoard from './components/ChessBoard'
 import PrevTurnButton from './components/Buttons/PrevTurnButton'
 import NextTurnButton from './components/Buttons/NextTurnButton'
+import PromotionBox from './components/PromotionBox'
 function App() {
 
   return (
@@ -9,6 +10,7 @@ function App() {
       <ChessBoard />
       <PrevTurnButton/>
       <NextTurnButton/>
+      <PromotionBox/>
     </div>
   )
 }

@@ -1,9 +1,10 @@
 import { create } from "zustand";
 
 interface chessBoardDataHistoryStore {
-  boardDataHistory: string[][][]
-  resetBoardDataHistory: () => void
-  addBoardDataHistory: (turnCount:number, boardData:string[][]) => void
+  boardDataHistory: string[][][];
+  resetBoardDataHistory: () => void;
+  addBoardDataHistory: (turnCount: number, boardData: string[][]) => void;
+  setBoardDataHistory: (row: number, col: number, piece: string) => void;
 }
 
 const startingBoardDataHistory = [
@@ -17,30 +18,26 @@ const startingBoardDataHistory = [
     ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
     ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
   ],
-  // test용 배열
-  // [
-  //   ['br', '', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-  //   ['', 'wp', 'bp', '', '', '', '', ''],
-  //   ['', '', '', '', '', '', '', ''],
-  //   ['', '', '', '', '', '', '', ''],
-  //   ['', '', '', '', '', '', '', ''],
-  //   ['', '', '', '', '', '', '', ''],
-  //   ['', ', '', '', '', 'wp', 'bp', ''],
-  //   ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', '', 'wr'],
-  // ]
-]
+];
 
 export const useChessBoardDataHistoryStore = create<chessBoardDataHistoryStore>((set) => ({
   boardDataHistory: startingBoardDataHistory,
+
   resetBoardDataHistory: () => set({ boardDataHistory: startingBoardDataHistory }),
 
-  addBoardDataHistory: (turnCount:number, boardData:string[][]) =>
+  addBoardDataHistory: (turnCount: number, boardData: string[][]) =>
+    set((state) => ({
+      boardDataHistory: [
+        ...state.boardDataHistory.slice(0, turnCount + 1),
+        structuredClone(boardData),
+      ],
+    })),
+
+  setBoardDataHistory: (row: number, col: number, piece: string) =>
     set((state) => {
-      return {
-          boardDataHistory: [
-            ...state.boardDataHistory.slice(0, turnCount + 1),
-            structuredClone(boardData),
-          ],
-        };
+      const lastBoard = state.boardDataHistory[state.boardDataHistory.length - 1];
+      lastBoard[row][col] = piece; // 기존 배열을 직접 변경
+
+      return { boardDataHistory: [...state.boardDataHistory] }; // 참조가 변경되지 않으면 Zustand가 감지 못하므로 새로운 배열로 반환
     }),
-}))
+}));

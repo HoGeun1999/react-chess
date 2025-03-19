@@ -12,7 +12,7 @@ const ChessBoard: React.FC = () => {
 
   useEffect(() => {
     const currentBoard = boardDataHistory[turnCount];
-  
+    console.log('check')
     const attackingPieceLocation = isKingCheckPieceLocation(currentBoard)
     if (attackingPieceLocation) {
       const isCheckmate = checkCheckmate(
@@ -24,7 +24,7 @@ const ChessBoard: React.FC = () => {
         alert('체크메이트!');
       }
     }
-  }, [turnCount]);
+  }, [turnCount,boardDataHistory]);
 
   const checkCheckmate = (board: any[][], turnColor: string, attackingPieceLocation:{row:number,col:number}): boolean => {
     const kingPosition = findKingPosition(board, turnColor);
