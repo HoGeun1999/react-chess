@@ -123,7 +123,6 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
       setRightBlackRook(null!)
     }
 
-    console.log(whiteKing,blackKing,leftWhiteRook,rightWhiteRook,leftBlackRook,rightBlackRook)
     addBoardDataHistory(turnCount, newBoardData)
     increaseTurnCount();
     setSelectedBoardBlock(null!);
