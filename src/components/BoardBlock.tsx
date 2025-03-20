@@ -7,6 +7,7 @@ import { useChessBoardDataHistoryStore } from '../stores/chessBoardDataHistorySt
 import { isKingCheckPieceLocation } from '../function/isKingCheckPieceLocation';
 import { useCheckPawnLastMoveStore } from '../stores/checkPawnLastMoveStore';
 import { useCastlingCheckStore } from '../stores/castlingCheckStore';
+import { useFiftyMoveDrawCountStore } from '../stores/fiftyMoveDrawCountStore'
 
 interface BoardBlockProps {
   row: number; 
@@ -20,6 +21,8 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
   const { boardDataHistory, addBoardDataHistory } = useChessBoardDataHistoryStore();
   const { prevTurnDoubleForwardMovePawnLocation, setprevTurnDoubleForwardMovePawnLocation } = useCheckPawnLastMoveStore();
   const { leftWhiteRook, rightWhiteRook, leftBlackRook, rightBlackRook, whiteKing, blackKing, setLeftWhiteRook, setRightWhiteRook, setLeftBlackRook, setRightBlackRook, setWhiteKing, setBlackKing } = useCastlingCheckStore();
+  const { fiftyMoveDrawCount, setFiftyMoveDrawCount, increaseFiftyMoveDrawCount } = useFiftyMoveDrawCountStore();
+
   const isSelected = selectedBoardBlock && selectedBoardBlock.row === row && selectedBoardBlock.col === col;
   const boardData = boardDataHistory[turnCount]
   let isEnPassant = false
@@ -123,7 +126,20 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
       setRightBlackRook(null!)
     }
 
-    addBoardDataHistory(turnCount, newBoardData)
+    if(selectedBoardBlock!.piece[1] === 'p' || boardData[row][col] !== ''){
+      setFiftyMoveDrawCount(0)
+    } else{
+      const reCount = boardDataHistory.length-1 - turnCount
+      if(fiftyMoveDrawCount - reCount < 0){
+        setFiftyMoveDrawCount(0)
+        increaseFiftyMoveDrawCount();
+      } else{
+        setFiftyMoveDrawCount(fiftyMoveDrawCount - reCount)
+        increaseFiftyMoveDrawCount();
+      }
+    }
+    // console.log(fiftyMoveDrawCount)
+    addBoardDataHistory(turnCount, newBoardData);
     increaseTurnCount();
     setSelectedBoardBlock(null!);
   };

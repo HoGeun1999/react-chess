@@ -5,12 +5,13 @@ import { useChessBoardDataHistoryStore } from '../stores/chessBoardDataHistorySt
 import { useTurnCountStore } from '../stores/turnCountStore';
 import { isKingCheckPieceLocation, canPieceAttack } from '../function/isKingCheckPieceLocation';
 import { useCheckPawnLastMoveStore } from '../stores/checkPawnLastMoveStore';
-
+import { useFiftyMoveDrawCountStore } from '../stores/fiftyMoveDrawCountStore'
 
 const ChessBoard: React.FC = () => {
   const { boardDataHistory } = useChessBoardDataHistoryStore();
   const { turnCount } = useTurnCountStore();
   const { prevTurnDoubleForwardMovePawnLocation } = useCheckPawnLastMoveStore();
+  const { fiftyMoveDrawCount } = useFiftyMoveDrawCountStore();
 
   useEffect(() => {
     const currentBoard = boardDataHistory[turnCount];
@@ -33,7 +34,10 @@ const ChessBoard: React.FC = () => {
     if(threeFoldRepetition()){
       alert('3수 동형 무승부!')
     }
-
+    // console.log(fiftyMoveDrawCount)
+    if(fiftyMoveDrawCount>=50){
+      alert('50회 무승부!')
+    }
   }, [turnCount,boardDataHistory]);
 
   const checkCheckmate = (board: any[][], turnColor: string, attackingPieceLocation:{row:number,col:number}): boolean => {
@@ -165,7 +169,7 @@ const ChessBoard: React.FC = () => {
   };
 
   const checkStalemate = (board: any[][], turnColor: string): boolean => {
-    if (isKingCheckPieceLocation(board)){ // 현재 킹의 위치가 체크상태면 스테일 메이트 x
+    if (isKingCheckPieceLocation(boardDataHistory[turnCount])){ // 현재 킹의 위치가 체크상태면 스테일 메이트 x
       return false
     }
 
@@ -177,16 +181,19 @@ const ChessBoard: React.FC = () => {
       switch (piece[1]) {
         case 'p': { // ✅ 폰 (Pawn)
           const direction = piece[0] === 'w' ? -1 : 1;
-          const startRow = piece[0] === 
-          
-          'w' ? 6 : 1;
+          const startRow = piece[0] === 'w' ? 6 : 1;
+    
           if (isEmpty(row + direction, col)) return true;
           if (row === startRow && isEmpty(row + direction, col) && isEmpty(row + 2 * direction, col)) return true;
           if (isOpponentPiece(row + direction, col - 1) || isOpponentPiece(row + direction, col + 1)) return true;
-          if (prevTurnDoubleForwardMovePawnLocation){
-            if((row === prevTurnDoubleForwardMovePawnLocation.row && col === prevTurnDoubleForwardMovePawnLocation.col+1) || (row === prevTurnDoubleForwardMovePawnLocation.row && col === prevTurnDoubleForwardMovePawnLocation.col-1))
-              //앙파상무브가 가능한지
-              return true
+    
+          if (prevTurnDoubleForwardMovePawnLocation) {
+            if (
+              row + direction === prevTurnDoubleForwardMovePawnLocation.row &&
+              (col + 1 === prevTurnDoubleForwardMovePawnLocation.col || col - 1 === prevTurnDoubleForwardMovePawnLocation.col)
+            ) {
+              return true;
+            }
           }
           break;
         }
@@ -208,7 +215,9 @@ const ChessBoard: React.FC = () => {
             while (isValidPosition(newRow, newCol)) {
               if (isEmpty(newRow, newCol)) return true;
               if (isOpponentPiece(newRow, newCol)) return true;
-              break;
+              
+              newRow += r;
+              newCol += c;
             }
           }
           break;
@@ -221,14 +230,20 @@ const ChessBoard: React.FC = () => {
           ];
     
           for (const { r, c } of knightMoves) {
-            if (isEmpty(row + r, col + c) || isOpponentPiece(row + r, col + c)) return true;
+            if (isValidPosition(row + r, col + c) && (isEmpty(row + r, col + c) || isOpponentPiece(row + r, col + c))) {
+              return true;
+            }
           }
           break;
         }
+    
+        default:
+          return false;
       }
     
       return false;
     };
+    
     
 
     let kingPosition = { row: -1, col: -1 };
@@ -236,6 +251,7 @@ const ChessBoard: React.FC = () => {
     // 현재 turnColor의 기물이 이동할 수 있는지 확인
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
+
         const piece = board[row][col];
   
         if (!piece || piece[0] !== turnColor) continue; // 해당 칸이 비었거나 상대방 기물인 경우 무시
@@ -244,7 +260,6 @@ const ChessBoard: React.FC = () => {
           kingPosition = { row, col }; // 킹의 위치 저장
           continue
         }
-
         if (canMove(row, col, piece, board)) {
           return false; // 하나라도 움직일 수 있으면 스테일메이트 아님
         }
@@ -276,11 +291,10 @@ const ChessBoard: React.FC = () => {
   };
   
   const threeFoldRepetition = (): boolean => {
-    if (turnCount < 8) return false; // 최소 8턴 이상 진행되어야 검사가 가능
+    if (turnCount < 9) return false; 
   
-    // 같은 보드 상태인지 비교하는 함수
     const isSameBoard = (turn1: number, turn2: number) => {
-      if (turn1 < 0 || turn2 < 0) return false; // 범위를 벗어나면 false
+      if (turn1 < 0 || turn2 < 0) return false; 
       return JSON.stringify(boardDataHistory[turn1]) === JSON.stringify(boardDataHistory[turn2]);
     };
   
