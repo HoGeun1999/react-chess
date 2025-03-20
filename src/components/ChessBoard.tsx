@@ -10,7 +10,7 @@ import { useCheckPawnLastMoveStore } from '../stores/checkPawnLastMoveStore';
 const ChessBoard: React.FC = () => {
   const { boardDataHistory } = useChessBoardDataHistoryStore();
   const { turnCount } = useTurnCountStore();
-const { prevTurnDoubleForwardMovePawnLocation, setprevTurnDoubleForwardMovePawnLocation } = useCheckPawnLastMoveStore();
+  const { prevTurnDoubleForwardMovePawnLocation } = useCheckPawnLastMoveStore();
 
   useEffect(() => {
     const currentBoard = boardDataHistory[turnCount];
@@ -28,6 +28,10 @@ const { prevTurnDoubleForwardMovePawnLocation, setprevTurnDoubleForwardMovePawnL
 
     if(checkStalemate(currentBoard,turnCount%2===0?'w':'b')){
       alert('스테일메이트!');
+    }
+
+    if(threeFoldRepetition()){
+      alert('3수 동형 무승부!')
     }
 
   }, [turnCount,boardDataHistory]);
@@ -173,7 +177,9 @@ const { prevTurnDoubleForwardMovePawnLocation, setprevTurnDoubleForwardMovePawnL
       switch (piece[1]) {
         case 'p': { // ✅ 폰 (Pawn)
           const direction = piece[0] === 'w' ? -1 : 1;
-          const startRow = piece[0] === 'w' ? 6 : 1;
+          const startRow = piece[0] === 
+          
+          'w' ? 6 : 1;
           if (isEmpty(row + direction, col)) return true;
           if (row === startRow && isEmpty(row + direction, col) && isEmpty(row + 2 * direction, col)) return true;
           if (isOpponentPiece(row + direction, col - 1) || isOpponentPiece(row + direction, col + 1)) return true;
@@ -269,6 +275,23 @@ const { prevTurnDoubleForwardMovePawnLocation, setprevTurnDoubleForwardMovePawnL
     return true; // 모든 경우의 수를 확인한 결과, 이동할 수 있는 기물이 없으면 스테일메이트
   };
   
+  const threeFoldRepetition = (): boolean => {
+    if (turnCount < 8) return false; // 최소 8턴 이상 진행되어야 검사가 가능
+  
+    // 같은 보드 상태인지 비교하는 함수
+    const isSameBoard = (turn1: number, turn2: number) => {
+      if (turn1 < 0 || turn2 < 0) return false; // 범위를 벗어나면 false
+      return JSON.stringify(boardDataHistory[turn1]) === JSON.stringify(boardDataHistory[turn2]);
+    };
+  
+    // 각각의 조건을 독립적으로 확인
+    const condition1 = isSameBoard(turnCount, turnCount - 4) && isSameBoard(turnCount, turnCount - 8)
+    const condition2 = isSameBoard(turnCount - 2, turnCount - 6);
+    const condition3 = isSameBoard(turnCount - 1, turnCount - 5) && isSameBoard(turnCount-1,turnCount-9);
+    const condition4 = isSameBoard(turnCount - 3, turnCount - 7);
+  
+    return condition1 && condition2 && condition3 && condition4;
+  };
   
   
 
