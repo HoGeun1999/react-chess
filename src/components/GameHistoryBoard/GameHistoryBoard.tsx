@@ -1,5 +1,5 @@
 import './GameHistoryBoard.scss'
-import { use, useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useChessBoardDataHistoryStore } from '../../stores/chessBoardDataHistoryStore'
 import { useTurnCountStore } from '../../stores/turnCountStore'
 import { useGameHistoryStore } from '../../stores/gameHistoryStore'

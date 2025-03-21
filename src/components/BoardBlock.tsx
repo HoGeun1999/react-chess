@@ -8,7 +8,7 @@ import { isKingCheckPieceLocation } from '../function/isKingCheckPieceLocation';
 import { useCheckPawnLastMoveStore } from '../stores/checkPawnLastMoveStore';
 import { useCastlingCheckStore } from '../stores/castlingCheckStore';
 import { useFiftyMoveDrawCountStore } from '../stores/fiftyMoveDrawCountStore'
-
+import { useEndGameTypeStore } from '../stores/endGameTypeStore';
 interface BoardBlockProps {
   row: number; 
   col: number;  
@@ -22,7 +22,7 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
   const { prevTurnDoubleForwardMovePawnLocation, setprevTurnDoubleForwardMovePawnLocation } = useCheckPawnLastMoveStore();
   const { leftWhiteRook, rightWhiteRook, leftBlackRook, rightBlackRook, whiteKing, blackKing, setLeftWhiteRook, setRightWhiteRook, setLeftBlackRook, setRightBlackRook, setWhiteKing, setBlackKing } = useCastlingCheckStore();
   const { fiftyMoveDrawCount, setFiftyMoveDrawCount, increaseFiftyMoveDrawCount } = useFiftyMoveDrawCountStore();
-
+  const { isGameEnd } = useEndGameTypeStore();
   const isSelected = selectedBoardBlock && selectedBoardBlock.row === row && selectedBoardBlock.col === col;
   const boardData = boardDataHistory[turnCount]
   let isEnPassant = false
@@ -39,6 +39,8 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
   }
 
   const clickBoardBlock = () => {
+    if(isGameEnd) return
+
     if (!selectedBoardBlock) {
       if (turnCount % 2 === 0 && boardData[row][col][0] === 'w') {
         setSelectedBoardBlock({ row, col, piece });

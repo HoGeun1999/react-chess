@@ -13,7 +13,7 @@ const ChessBoard: React.FC = () => {
   const { turnCount } = useTurnCountStore();
   const { prevTurnDoubleForwardMovePawnLocation } = useCheckPawnLastMoveStore();
   const { fiftyMoveDrawCount } = useFiftyMoveDrawCountStore();
-  const { setEndGameType } = useEndGameTypeStore();
+  const { setIsGameEnd, setEndGameType } = useEndGameTypeStore();
 
   useEffect(() => {
     const currentBoard = boardDataHistory[turnCount];
@@ -25,23 +25,28 @@ const ChessBoard: React.FC = () => {
         { row: attackingPieceLocation.i, col: attackingPieceLocation.j }
       );
       if (isCheckmate) {
+        setIsGameEnd(true);
         setEndGameType('체크메이트!');
       }
     }
 
     if(lackPieceDraw(currentBoard)){
+      setIsGameEnd(true);
       setEndGameType('기물부족 무승부')
     }
 
     if(checkStalemate(currentBoard,turnCount%2===0?'w':'b')){
+      setIsGameEnd(true);
       setEndGameType('스테일메이트');
     }
 
     if(threeFoldRepetition()){
+      setIsGameEnd(true);
       setEndGameType('3수 동형 무승부')
     }
     // console.log(fiftyMoveDrawCount)
     if(fiftyMoveDrawCount>=50){
+      setIsGameEnd(true);
       setEndGameType('50회 무승부')
     }
 
