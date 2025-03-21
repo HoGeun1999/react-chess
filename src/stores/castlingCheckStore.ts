@@ -14,6 +14,8 @@ interface CastlingCheckStore {
   setRightBlackRook: (turnCount: number) => void;
   setWhiteKing: (turnCount: number) => void;
   setBlackKing: (turnCount: number) => void;
+
+  resetCastlingCheck: () => void;
 }
 
 export const useCastlingCheckStore = create<CastlingCheckStore>((set) => ({
@@ -53,7 +55,19 @@ export const useCastlingCheckStore = create<CastlingCheckStore>((set) => ({
     set((state) => ({
       blackKing: updatePieceMove(state.blackKing, turnCount),
     })),
-}));
+
+  resetCastlingCheck: () =>
+    set(() => ({
+      leftWhiteRook: null,
+      rightWhiteRook: null,
+      leftBlackRook: null,
+      rightBlackRook: null,
+      whiteKing: null,
+      blackKing: null,
+    }))
+  
+  }));
+
 
 // 상태 업데이트 로직
 const updatePieceMove = (currentTurn: number | null, newTurn: number): number | null => {

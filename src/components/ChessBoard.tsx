@@ -6,12 +6,14 @@ import { useTurnCountStore } from '../stores/turnCountStore';
 import { isKingCheckPieceLocation, canPieceAttack } from '../function/isKingCheckPieceLocation';
 import { useCheckPawnLastMoveStore } from '../stores/checkPawnLastMoveStore';
 import { useFiftyMoveDrawCountStore } from '../stores/fiftyMoveDrawCountStore'
+import { useEndGameTypeStore } from '../stores/endGameTypeStore';
 
 const ChessBoard: React.FC = () => {
   const { boardDataHistory } = useChessBoardDataHistoryStore();
   const { turnCount } = useTurnCountStore();
   const { prevTurnDoubleForwardMovePawnLocation } = useCheckPawnLastMoveStore();
   const { fiftyMoveDrawCount } = useFiftyMoveDrawCountStore();
+  const { setEndGameType } = useEndGameTypeStore();
 
   useEffect(() => {
     const currentBoard = boardDataHistory[turnCount];
@@ -23,24 +25,24 @@ const ChessBoard: React.FC = () => {
         { row: attackingPieceLocation.i, col: attackingPieceLocation.j }
       );
       if (isCheckmate) {
-        alert('체크메이트!');
+        setEndGameType('체크메이트!');
       }
     }
 
     if(lackPieceDraw(currentBoard)){
-      alert('기물부족 무승부!')
+      setEndGameType('기물부족 무승부')
     }
 
     if(checkStalemate(currentBoard,turnCount%2===0?'w':'b')){
-      alert('스테일메이트!');
+      setEndGameType('스테일메이트');
     }
 
     if(threeFoldRepetition()){
-      alert('3수 동형 무승부!')
+      setEndGameType('3수 동형 무승부')
     }
     // console.log(fiftyMoveDrawCount)
     if(fiftyMoveDrawCount>=50){
-      alert('50회 무승부!')
+      setEndGameType('50회 무승부')
     }
 
 

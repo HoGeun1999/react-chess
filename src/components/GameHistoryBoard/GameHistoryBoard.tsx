@@ -1,24 +1,26 @@
 import './GameHistoryBoard.scss'
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { useChessBoardDataHistoryStore } from '../../stores/chessBoardDataHistoryStore'
 import { useTurnCountStore } from '../../stores/turnCountStore'
+import { useGameHistoryStore } from '../../stores/gameHistoryStore'
 
 const GameHistoryBoard = () => {
   const { boardDataHistory } = useChessBoardDataHistoryStore()
   const { turnCount } = useTurnCountStore()
-  const [historyLog, setHistoryLog] = useState<{ piece: string; move: string }[]>([])
+  const {gameHistoryLog, setGameHistoryLog} = useGameHistoryStore()
 
   useEffect(() => {
     if (boardDataHistory.length < 2) return
-    setHistoryLog([])
-
+  
+    const newHistoryLog: { piece: string; move: string }[] = []
+  
     for (let i = 1; i < boardDataHistory.length; i++) {
       const prevBoard = boardDataHistory[i - 1]
       const currentBoard = boardDataHistory[i]
       let movedPiece = ''
       let to = { row: -1, col: -1 }
       let capturedPiece = null
-
+  
       for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
           if (prevBoard[row][col] !== currentBoard[row][col]) {
@@ -32,21 +34,24 @@ const GameHistoryBoard = () => {
           }
         }
       }
-
+  
       if (movedPiece) {
         const columnLetter = String.fromCharCode(97 + to.col) // 0 -> 'a', 1 -> 'b', ..., 7 -> 'h'
         const moveText = capturedPiece
           ? `x${columnLetter}${8 - to.row}`
           : `${columnLetter}${8 - to.row}`
-
-        setHistoryLog(prev => [...prev, { piece: movedPiece, move: moveText }])
+  
+        newHistoryLog.push({ piece: movedPiece, move: moveText }) // 🔹 새로운 로그만 저장
       }
     }
+  
+    setGameHistoryLog(newHistoryLog) // 🔹 최종적으로 한 번에 업데이트
   }, [boardDataHistory])  
+  
 
   return (
     <div className="game-history-board">
-      {historyLog.reduce((rows: { piece: string; move: string }[][], move, index) => {
+      {gameHistoryLog.reduce((rows: { piece: string; move: string }[][], move, index) => {
         if (index % 2 === 0) {
           rows.push([move]) // 새로운 행 시작
         } else {
