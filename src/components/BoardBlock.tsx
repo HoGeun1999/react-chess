@@ -9,6 +9,8 @@ import { useCheckPawnLastMoveStore } from '../stores/checkPawnLastMoveStore';
 import { useCastlingCheckStore } from '../stores/castlingCheckStore';
 import { useFiftyMoveDrawCountStore } from '../stores/fiftyMoveDrawCountStore'
 import { useEndGameTypeStore } from '../stores/endGameTypeStore';
+import { useIsKingCheckStore } from '../stores/isKingCheckstore';
+
 interface BoardBlockProps {
   row: number; 
   col: number;  
@@ -23,13 +25,13 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
   const { leftWhiteRook, rightWhiteRook, leftBlackRook, rightBlackRook, whiteKing, blackKing, setLeftWhiteRook, setRightWhiteRook, setLeftBlackRook, setRightBlackRook, setWhiteKing, setBlackKing } = useCastlingCheckStore();
   const { fiftyMoveDrawCount, setFiftyMoveDrawCount, increaseFiftyMoveDrawCount } = useFiftyMoveDrawCountStore();
   const { isGameEnd } = useEndGameTypeStore();
+  const { setIsCheck } = useIsKingCheckStore();
   const isSelected = selectedBoardBlock && selectedBoardBlock.row === row && selectedBoardBlock.col === col;
   const boardData = boardDataHistory[turnCount]
   let isEnPassant = false
   let isCastling = false
   // console.log(row)
   // console.log(boardDataHistory)
-  
   const boardBlockColor = ():string => {
     if (row % 2 === 0) {
       return col % 2 === 0 ? 'white' : 'black';
@@ -52,7 +54,7 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
         const newBoardData = makeNewBoardData();
         const isKingCheck = isKingCheckPieceLocation(newBoardData);
         const pieceType = selectedBoardBlock.piece[1];
-
+          
         let canMove = false;
 
         switch (pieceType) {
@@ -83,8 +85,12 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
             setprevTurnDoubleForwardMovePawnLocation(null)
           }
           updateMoveToBoardData();
-        } else if(isKingCheck){
-          alert('체크');
+        } else if(isKingCheck) {
+          // 체크 상태 변경 및 1초 후 제거
+          setIsCheck(true); // 알람 표시
+          setTimeout(() => {
+            setIsCheck(false); // 1초 후 알람 제거
+          }, 500);
         }
       } else {
         setSelectedBoardBlock({ row, col, piece });
@@ -369,6 +375,8 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
     }
     return false
   }
+
+
 
   return (
     <div 

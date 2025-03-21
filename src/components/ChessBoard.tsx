@@ -7,14 +7,13 @@ import { isKingCheckPieceLocation, canPieceAttack } from '../function/isKingChec
 import { useCheckPawnLastMoveStore } from '../stores/checkPawnLastMoveStore';
 import { useFiftyMoveDrawCountStore } from '../stores/fiftyMoveDrawCountStore'
 import { useEndGameTypeStore } from '../stores/endGameTypeStore';
-
 const ChessBoard: React.FC = () => {
   const { boardDataHistory } = useChessBoardDataHistoryStore();
   const { turnCount } = useTurnCountStore();
   const { prevTurnDoubleForwardMovePawnLocation } = useCheckPawnLastMoveStore();
   const { fiftyMoveDrawCount } = useFiftyMoveDrawCountStore();
   const { setIsGameEnd, setEndGameType } = useEndGameTypeStore();
-
+  
   useEffect(() => {
     const currentBoard = boardDataHistory[turnCount];
     const attackingPieceLocation = isKingCheckPieceLocation(currentBoard)
@@ -44,7 +43,7 @@ const ChessBoard: React.FC = () => {
       setIsGameEnd(true);
       setEndGameType('3수 동형 무승부')
     }
-    // console.log(fiftyMoveDrawCount)
+    
     if(fiftyMoveDrawCount>=50){
       setIsGameEnd(true);
       setEndGameType('50회 무승부')
@@ -368,25 +367,29 @@ const ChessBoard: React.FC = () => {
   
     return condition1 && condition2 && condition3 && condition4;
   };
-  
-  
+
 
   return (
     <div className="chess-board">
-      {boardDataHistory[turnCount].map((row, rowIndex) => (
-        <div key={rowIndex} className="board-row">
-          {row.map((piece, colIndex) => (
-            <BoardBlock
-              key={`${rowIndex}-${colIndex}`}
-              row={rowIndex}
-              col={colIndex}
-              piece={piece}
-            />
-          ))}
-        </div>
-      ))}
+      {boardDataHistory[turnCount] ? (
+        boardDataHistory[turnCount].map((row, rowIndex) => (
+          <div key={rowIndex} className="board-row">
+            {row.map((piece, colIndex) => (
+              <BoardBlock
+                key={`${rowIndex}-${colIndex}`}
+                row={rowIndex}
+                col={colIndex}
+                piece={piece}
+              />
+            ))}
+          </div>
+        ))
+      ) : (
+        <div>Invalid board state</div> // 예외 처리
+      )}
     </div>
-  );
-};
+);
+}
+
 
 export default ChessBoard;

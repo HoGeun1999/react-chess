@@ -1,0 +1,16 @@
+.check-popup {
+  position: fixed; /* 화면에 고정 */
+  top: 30%; /* 화면 중앙에 위치 */
+  left: 50%; /* 화면 중앙에 위치 */
+  transform: translate(-50%, -50%); /* 정확히 중앙에 위치하도록 조정 */
+  
+  padding: 20px 30px;
+  background-color: rgba(0, 0, 0, 0.9); /* 반투명한 배경 */
+  color: white;
+  border-radius: 10px; /* 모서리 둥글게 */
+  font-size: 18px;
+  font-weight: bold;
+  
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+  z-index: 1000; /* 다른 요소들 위에 표시 */
+}
