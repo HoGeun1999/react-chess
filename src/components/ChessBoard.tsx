@@ -27,6 +27,10 @@ const ChessBoard: React.FC = () => {
       }
     }
 
+    if(lackPieceDraw(currentBoard)){
+      alert('기물부족 무승부!')
+    }
+
     if(checkStalemate(currentBoard,turnCount%2===0?'w':'b')){
       alert('스테일메이트!');
     }
@@ -38,6 +42,9 @@ const ChessBoard: React.FC = () => {
     if(fiftyMoveDrawCount>=50){
       alert('50회 무승부!')
     }
+
+
+
   }, [turnCount,boardDataHistory]);
 
   const checkCheckmate = (board: any[][], turnColor: string, attackingPieceLocation:{row:number,col:number}): boolean => {
@@ -167,6 +174,54 @@ const ChessBoard: React.FC = () => {
   
     return false;
   };
+
+  const lackPieceDraw = (board: string[][]): boolean => {
+    const whitePieces: string[] = []
+    const blackPieces: string[] = []
+  
+    // 보드에서 남아있는 기물들을 분류
+    board.forEach((row) => {
+      row.forEach((cell) => {
+        if (cell !== '') {
+          if (cell.startsWith('w')) whitePieces.push(cell)
+          else if (cell.startsWith('b')) blackPieces.push(cell)
+        }
+      })
+    })
+  
+    // 1. 킹만 남아있는 경우 (wk, bk만 존재)
+    if (whitePieces.length === 1 && blackPieces.length === 1) {
+      return true
+    }
+  
+    // 2. 한쪽이 킹만 있고, 다른 쪽이 '킹+나이트' 또는 '킹+비숍'만 있는 경우
+    if (
+      (whitePieces.length === 1 && blackPieces.length === 2 && (blackPieces.includes('bn') || blackPieces.includes('bb'))) ||
+      (blackPieces.length === 1 && whitePieces.length === 2 && (whitePieces.includes('wn') || whitePieces.includes('wb')))
+    ) {
+      return true
+    }
+  
+    // 3. 킹+2나이트 vs 킹
+    if (
+      (whitePieces.length === 3 && whitePieces.filter(p => p === 'wn').length === 2 && blackPieces.length === 1) ||
+      (blackPieces.length === 3 && blackPieces.filter(p => p === 'bn').length === 2 && whitePieces.length === 1)
+    ) {
+      return true
+    }
+  
+    // 4. 킹+나이트 or 비숍 vs 킹+나이트 or 비숍
+    if (
+      whitePieces.length === 2 && blackPieces.length === 2 &&
+      (whitePieces.includes('wn') || whitePieces.includes('wb')) &&
+      (blackPieces.includes('bn') || blackPieces.includes('bb'))
+    ) {
+      return true
+    }
+  
+    return false
+  }
+  
 
   const checkStalemate = (board: any[][], turnColor: string): boolean => {
     if (isKingCheckPieceLocation(boardDataHistory[turnCount])){ // 현재 킹의 위치가 체크상태면 스테일 메이트 x

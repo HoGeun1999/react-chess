@@ -8,16 +8,16 @@ interface chessBoardDataHistoryStore {
 }
 
 const startingBoardDataHistory = [
-  [
-    ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-    ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-    ['', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', ''],
-    ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-    ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
-  ],
+  // [
+  //   ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
+  //   ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+  //   ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
+  // ],
   // stalemate test board
   // [
   //   ['', '', '', '', 'bk', '', '', ''],
@@ -29,6 +29,17 @@ const startingBoardDataHistory = [
   //   ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', '', 'wp'],
   //   ['', 'wn', 'wb', '', 'wk', 'wb', 'wn', ''],
   // ],
+  // rowPieceDraw
+  [
+    ['', '', '', 'br', 'bk', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', 'wn', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', 'wk', '', '', '']
+  ]
 ];
 
 export const useChessBoardDataHistoryStore = create<chessBoardDataHistoryStore>((set) => ({
