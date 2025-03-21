@@ -1,31 +1,37 @@
+body {
+  background-color: rgb(68, 63, 63);
+}
+
 .game-history-board {
-  width: 300px;
-  height: 600px;
-  border: 2px solid black;
+  width: 500px;
+  height: 800px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  background-color: rgb(252, 252, 239);
+  overflow-y: auto;
 }
 
 .history-entry {
   display: flex;
   gap: 16px;
+  width: 100%;
 }
 
 .history-move {
   display: flex;
   align-items: center;
-  gap: 4px; /* 이미지와 텍스트 사이 간격 */
-  font-size: 20px;
+  font-size: 30px;
+  width: 50%;
+  justify-content: center;
 }
 
 .piece-icon {
-  width: 30px;  /* 이미지 크기 조정 */
-  height: 30px;
+  width: 50px;  
+  height: 50px;
 }
 
 .current-turn {
-  background-color: rgba(255, 223, 88, 0.5); // 연한 노란색 배경
+  background-color: rgba(255, 223, 88, 0.5); 
   font-weight: bold;
   transition: background-color 0.3s ease-in-out;
 }

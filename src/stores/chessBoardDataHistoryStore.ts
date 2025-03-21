@@ -8,27 +8,27 @@ interface chessBoardDataHistoryStore {
 }
 
 const startingBoardDataHistory = [
-  // [
-  //   ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-  //   ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-  //   ['', '', '', '', '', '', '', ''],
-  //   ['', '', '', '', '', '', '', ''],
-  //   ['', '', '', '', '', '', '', ''],
-  //   ['', '', '', '', '', '', '', ''],
-  //   ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-  //   ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
-  // ],
-  // stalemate test board
   [
-    ['', '', '', '', 'bk', '', '', ''],
+    ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
+    ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
     ['', '', '', '', '', '', '', ''],
-    ['', 'wq', '', '', '', '', 'bp', ''],
-    ['', '', '', 'wr', '', 'wr', '', ''],
     ['', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', 'wp', ''],
-    ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', '', 'wp'],
-    ['', 'wn', 'wb', '', 'wk', 'wb', 'wn', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+    ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
   ],
+  // stalemate test board
+  // [
+  //   ['', '', '', '', 'bk', '', '', ''],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['', 'wq', '', '', '', '', 'bp', ''],
+  //   ['', '', '', 'wr', '', 'wr', '', ''],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['', '', '', '', '', '', 'wp', ''],
+  //   ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', '', 'wp'],
+  //   ['', 'wn', 'wb', '', 'wk', 'wb', 'wn', ''],
+  // ],
   // rowPieceDraw
   // [
   //   ['', '', '', 'br', 'bk', '', '', ''],
@@ -58,8 +58,8 @@ export const useChessBoardDataHistoryStore = create<chessBoardDataHistoryStore>(
   setBoardDataHistory: (row: number, col: number, piece: string) =>
     set((state) => {
       const lastBoard = state.boardDataHistory[state.boardDataHistory.length - 1];
-      lastBoard[row][col] = piece; // 기존 배열을 직접 변경
+      lastBoard[row][col] = piece;
 
-      return { boardDataHistory: [...state.boardDataHistory] }; // 참조가 변경되지 않으면 Zustand가 감지 못하므로 새로운 배열로 반환
+      return { boardDataHistory: [...state.boardDataHistory] };
     }),
 }));

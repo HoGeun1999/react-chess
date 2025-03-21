@@ -86,10 +86,9 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
           }
           updateMoveToBoardData();
         } else if(isKingCheck) {
-          // 체크 상태 변경 및 1초 후 제거
-          setIsCheck(true); // 알람 표시
+          setIsCheck(true); 
           setTimeout(() => {
-            setIsCheck(false); // 1초 후 알람 제거
+            setIsCheck(false);
           }, 500);
         }
       } else {

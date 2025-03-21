@@ -1,4 +1,3 @@
-import './NextTurnButton.scss'
 import { useTurnCountStore } from '../../stores/turnCountStore'
 import { useChessBoardDataHistoryStore } from '../../stores/chessBoardDataHistoryStore'
 import { useSelectedBoardBlockStore } from '../../stores/selectedBoardBlockStore'
@@ -18,7 +17,7 @@ const NextTurnButton = () => {
 
   return (
     <div>
-      <button onClick={onclickNextTurnButton}>Next Turn</button>
+      <button onClick={onclickNextTurnButton} className='action-button'>Next Turn</button>
     </div>
   )
 }

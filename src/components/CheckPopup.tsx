@@ -6,8 +6,6 @@ const CheckPopup = () => {
   
   if(!isCheck) return
 
-
-
   return(
     <div className='check-popup'>
       체크

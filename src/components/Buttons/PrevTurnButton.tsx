@@ -1,4 +1,3 @@
-import './PrevTurnButton.scss'
 import { useTurnCountStore } from '../../stores/turnCountStore'
 import { useSelectedBoardBlockStore } from '../../stores/selectedBoardBlockStore'
 
@@ -15,7 +14,7 @@ const PrevTurnButton = () => {
 
   return (
     <div>
-      <button onClick={onclickPrevTurnButton}>Prev Turn</button>
+      <button onClick={onclickPrevTurnButton} className='action-button'>Prev Turn</button>
     </div>
   )
 }

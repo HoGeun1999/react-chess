@@ -30,7 +30,7 @@ const RestartButton = () => {
 
   return (
     <div className='restart-button-container'>
-      <button onClick={clickRestartGameButton}>Restart</button>
+      <button onClick={clickRestartGameButton} className='action-button'>Restart</button>
     </div>
   );
 };
