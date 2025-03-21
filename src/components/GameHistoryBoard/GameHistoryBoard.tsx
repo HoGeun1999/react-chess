@@ -55,12 +55,17 @@ const GameHistoryBoard = () => {
         return rows
       }, []).map((row, index) => (
         <div key={index} className="history-entry">
-          {row.map((entry, i) => (
-            <div key={i} className="history-move">
-              <img src={`https://assets-themes.chess.com/image/ejgfv/150/${entry.piece}.png`} alt={entry.piece} className="piece-icon" />
-              {entry.move}
-            </div>
-          ))}
+          {row.map((entry, i) => {
+            const moveIndex = index * 2 + i // 현재 이동의 전체 index 계산
+            const isCurrentMove = moveIndex === turnCount - 1 // 현재 이동과 일치하는지 확인
+
+            return (
+              <div key={i} className={`history-move ${isCurrentMove ? 'current-turn' : ''}`}>
+                <img src={`https://assets-themes.chess.com/image/ejgfv/150/${entry.piece}.png`} alt={entry.piece} className="piece-icon" />
+                {entry.move}
+              </div>
+            )
+          })}
         </div>
       ))}
     </div>

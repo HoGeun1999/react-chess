@@ -23,3 +23,9 @@
   width: 30px;  /* 이미지 크기 조정 */
   height: 30px;
 }
+
+.current-turn {
+  background-color: rgba(255, 223, 88, 0.5); // 연한 노란색 배경
+  font-weight: bold;
+  transition: background-color 0.3s ease-in-out;
+}
