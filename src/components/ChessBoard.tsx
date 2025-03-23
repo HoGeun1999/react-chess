@@ -7,15 +7,18 @@ import { isKingCheckPieceLocation, canPieceAttack } from '../function/isKingChec
 import { useCheckPawnLastMoveStore } from '../stores/checkPawnLastMoveStore';
 import { useFiftyMoveDrawCountStore } from '../stores/fiftyMoveDrawCountStore'
 import { useEndGameTypeStore } from '../stores/endGameTypeStore';
+import { useIsPromotionStore } from '../stores/isPromotionStore';
 const ChessBoard: React.FC = () => {
   const { boardDataHistory } = useChessBoardDataHistoryStore();
   const { turnCount } = useTurnCountStore();
   const { prevTurnDoubleForwardMovePawnLocation } = useCheckPawnLastMoveStore();
   const { fiftyMoveDrawCount } = useFiftyMoveDrawCountStore();
   const { setIsGameEnd, setEndGameType } = useEndGameTypeStore();
+  const {setIsPromotion} = useIsPromotionStore();
   
   useEffect(() => {
     const currentBoard = boardDataHistory[turnCount];
+
     const attackingPieceLocation = isKingCheckPieceLocation(currentBoard)
     if (attackingPieceLocation) {
       const isCheckmate = checkCheckmate(
@@ -28,6 +31,18 @@ const ChessBoard: React.FC = () => {
         setEndGameType('체크메이트!');
       }
     }
+
+    for(let i=0;i<8;i++){
+      for(let j=0;j<8;j++){
+        if(currentBoard[i][j]==='wp' && i === 0){
+          setIsPromotion(true)
+        }
+        else if(currentBoard[i][j]==='bp' && i === 7){
+          setIsPromotion(true)
+        }
+      }
+    }
+
 
     if(lackPieceDraw(currentBoard)){
       setIsGameEnd(true);

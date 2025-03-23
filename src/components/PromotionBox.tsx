@@ -1,11 +1,13 @@
-import { useEffect } from 'react';
 import './PromotionBox.scss';
 import { useChessBoardDataHistoryStore } from '../stores/chessBoardDataHistoryStore';
 import { useTurnCountStore } from '../stores/turnCountStore';
+import { useIsPromotionStore } from '../stores/isPromotionStore';
 
 const PromotionBox = () => {
   const { boardDataHistory, setBoardDataHistory } = useChessBoardDataHistoryStore();
   const { turnCount } = useTurnCountStore();
+  const { isPromotion, setIsPromotion } = useIsPromotionStore();
+  if(!isPromotion) return
 
   const currentBoard = boardDataHistory[turnCount];
   let promotionPieceColor: 'w' | 'b' | null = null;
@@ -23,24 +25,10 @@ const PromotionBox = () => {
     });
   });
 
-  useEffect(() => {
-    if (!promotionPieceColor || !promotionPawnPosition) return;
-
-    const boardBlocks = document.querySelectorAll('.board-block');
-    const preventClick = (e: Event) => e.stopPropagation();
-
-    boardBlocks.forEach((block) => block.addEventListener('click', preventClick));
-
-    return () => {
-      boardBlocks.forEach((block) => block.removeEventListener('click', preventClick));
-    };
-  }, [promotionPieceColor, promotionPawnPosition]);
-
-  if (!promotionPieceColor || !promotionPawnPosition) return null;
-
   const clickPromotionPiece = (piece: string) => {
     const { row, col } = promotionPawnPosition!;
     setBoardDataHistory(row, col, piece);
+    setIsPromotion(false)
   };
 
   return (

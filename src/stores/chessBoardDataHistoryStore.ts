@@ -40,6 +40,17 @@ const startingBoardDataHistory = [
   //   ['', '', '', '', '', '', '', ''],
   //   ['', '', '', '', 'wk', '', '', '']
   // ]
+  // promotion test
+  // [
+  //   ['', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
+  //   ['wp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['', '', '', '', '', '', '', ''],
+  //   ['', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+  //   ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
+  // ],
 ];
 
 export const useChessBoardDataHistoryStore = create<chessBoardDataHistoryStore>((set) => ({
@@ -48,12 +59,12 @@ export const useChessBoardDataHistoryStore = create<chessBoardDataHistoryStore>(
   resetBoardDataHistory: () => set({ boardDataHistory: startingBoardDataHistory }),
 
   addBoardDataHistory: (turnCount: number, boardData: string[][]) =>
-    set((state) => ({
-      boardDataHistory: [
-        ...state.boardDataHistory.slice(0, turnCount + 1),
-        structuredClone(boardData),
-      ],
-    })),
+    set((state) => {
+      const newHistory = state.boardDataHistory.slice(0, turnCount + 1);
+      newHistory.push(structuredClone(boardData));
+      return { boardDataHistory: newHistory };
+    }),
+  
 
   setBoardDataHistory: (row: number, col: number, piece: string) =>
     set((state) => {

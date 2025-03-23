@@ -10,7 +10,7 @@ import { useCastlingCheckStore } from '../stores/castlingCheckStore';
 import { useFiftyMoveDrawCountStore } from '../stores/fiftyMoveDrawCountStore'
 import { useEndGameTypeStore } from '../stores/endGameTypeStore';
 import { useIsKingCheckStore } from '../stores/isKingCheckstore';
-
+import { useIsPromotionStore } from '../stores/isPromotionStore';
 interface BoardBlockProps {
   row: number; 
   col: number;  
@@ -26,6 +26,8 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
   const { fiftyMoveDrawCount, setFiftyMoveDrawCount, increaseFiftyMoveDrawCount } = useFiftyMoveDrawCountStore();
   const { isGameEnd } = useEndGameTypeStore();
   const { setIsCheck } = useIsKingCheckStore();
+  const { isPromotion } = useIsPromotionStore();
+
   const isSelected = selectedBoardBlock && selectedBoardBlock.row === row && selectedBoardBlock.col === col;
   const boardData = boardDataHistory[turnCount]
   let isEnPassant = false
@@ -42,6 +44,7 @@ const BoardBlock:React.FC<BoardBlockProps> = React.memo(({ row, col, piece }) =>
 
   const clickBoardBlock = () => {
     if(isGameEnd) return
+    if(isPromotion) return
 
     if (!selectedBoardBlock) {
       if (turnCount % 2 === 0 && boardData[row][col][0] === 'w') {

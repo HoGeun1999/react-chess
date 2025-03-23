@@ -1,4 +1,7 @@
 .promotion-container{
+  position: absolute;
+  top: 270px;
+  left: 150px;
   display: flex;
   flex-direction: column;
   width: 90px;
@@ -14,7 +17,9 @@
   background-color: rgb(252, 252, 239);
   border-bottom: solid 1px black;
   caret-color: transparent; 
-
+  :hover{
+    cursor: pointer;
+  }
 }
 
 .piece-img{
